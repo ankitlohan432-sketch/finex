@@ -1,0 +1,67 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: finex-mysql
+    environment:
+      MYSQL_DATABASE: finex_db
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - finex-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: finex-backend
+    environment:
+      DATABASE_URL: mysql+pymysql://root:password@mysql:3306/finex_db
+      SECRET_KEY: finex-super-secret-key-change-in-production-2026
+      ENVIRONMENT: production
+      SENDGRID_API_KEY: YOUR_SENDGRID_API_KEY
+      STOCK_API_KEY: 4b49de0121444553852e9e591654f2c8
+      STOCK_API_URL: https://api.twelvedata.com
+      WORKERS: "2"
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - finex-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
+    container_name: finex-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - finex-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  finex-network:
+    driver: bridge

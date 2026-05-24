@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: finex-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: finex-mysql
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SENDGRID_API_KEY
+        value: YOUR_SENDGRID_API_KEY
+      - key: STOCK_API_KEY
+        value: 4b49de0121444553852e9e591654f2c8
+      - key: ENVIRONMENT
+        value: production
+
+databases:
+  - name: finex-mysql
+    databaseName: finex_db
+    user: finex_user
