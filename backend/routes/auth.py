@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from database import get_db
 from models.user import User
-from auth import auth_handler
+from auth_handler import auth_handler
 from services.mail_service import mail_service
 from services.activity_tracker import activity_tracker
 from config import settings
