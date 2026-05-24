@@ -1,5 +1,5 @@
 from fastapi import Request, HTTPException, status
-from auth import auth_handler
+from auth_utils import auth_handler
 
 async def verify_token(request: Request):
     """Verify JWT token from request header"""

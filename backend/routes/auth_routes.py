@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from database import get_db
 from models.user import User
-from auth_handler import auth_handler
+from auth_utils import auth_handler
 from services.mail_service import mail_service
 from services.activity_tracker import activity_tracker
 from config import settings
@@ -13,6 +13,7 @@ import asyncio
 import random
 import string
 import logging
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Authentication"])
@@ -256,4 +257,3 @@ async def refresh_token(request: Request, db: Session = Depends(get_db)):
         raise
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
-
