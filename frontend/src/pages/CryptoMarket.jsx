@@ -264,7 +264,14 @@ export default function CryptoMarket() {
 
           {hasMore && !loading && (
             <div style={{ padding:'12px 16px', textAlign:'center', borderTop:'1px solid var(--border-light)' }}>
-              <button className="btn btn-ghost btn-sm" onClick={() => loadTickers(false)} disabled={loadingMore} style={{ gap:6 }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => {
+  const nextPage = tickers.length / PAGE_SIZE
+  setLoadingMore(true)
+  cryptoAPI.tickers(nextPage, PAGE_SIZE)
+    .then(res => { const data = res.data || []; setTickers(prev => [...prev, ...data]); setHasMore(data.length === PAGE_SIZE) })
+    .catch(e => console.error(e))
+    .finally(() => setLoadingMore(false))
+}} disabled={loadingMore} style={{ gap:6 }}>
                 <ChevronDown size={14} />
                 {loadingMore ? 'Loading...' : 'Load More Coins'}
               </button>
@@ -342,3 +349,4 @@ export default function CryptoMarket() {
     </div>
   )
 }
+
