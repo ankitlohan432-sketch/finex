@@ -12,6 +12,8 @@ from typing import Optional
 import asyncio
 import random
 import string
+import logging
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Authentication"])
 
