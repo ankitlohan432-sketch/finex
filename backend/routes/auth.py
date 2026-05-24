@@ -254,3 +254,4 @@ async def refresh_token(request: Request, db: Session = Depends(get_db)):
         raise
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
+

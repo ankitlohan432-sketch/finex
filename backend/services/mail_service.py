@@ -8,7 +8,7 @@ import os
 logger = logging.getLogger(__name__)
 
 # SendGrid Configuration
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "YOUR_SENDGRID_API_KEY")
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "").strip()
 SENDGRID_URL = "https://api.sendgrid.com/v3/mail/send"
 
 MAX_EMAILS_PER_HOUR = 100
@@ -135,3 +135,4 @@ class MailService:
         await self._send(to_email, full_name, "New Login to Your Finex Account", html)
 
 mail_service = MailService()
+
