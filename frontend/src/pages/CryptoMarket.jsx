@@ -161,7 +161,7 @@ export default function CryptoMarket() {
   useEffect(() => {
     if (window.LightweightCharts) { setScriptLoaded(true); return }
     const s = document.createElement('script')
-    s.src = 'https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js'
+    s.src = 'https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js'
     s.onload = () => setScriptLoaded(true)
     document.head.appendChild(s)
   }, [])
