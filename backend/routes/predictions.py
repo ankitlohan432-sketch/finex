@@ -1,7 +1,7 @@
-"""
+﻿"""
 FINEX - AI Predictions Route
-Combines trained ML/DL models with real-time market data
-Predicts next price movement for crypto, NSE, BSE
+Uses Binance klines for crypto (reliable)
+Uses yfinance headers trick for NSE/BSE
 """
 from fastapi import APIRouter, Query
 from services.crypto_market_service import get_crypto_ticker, get_crypto_klines
@@ -14,14 +14,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["AI Predictions"])
 
 def simple_ml_predict(prices: list) -> dict:
-    """
-    Lightweight prediction using:
-    - Moving averages (MA5, MA10, MA20)
-    - RSI (Relative Strength Index)
-    - MACD signal
-    - Price momentum
-    Returns prediction with confidence score
-    """
     if len(prices) < 20:
         return {"signal": "NEUTRAL", "confidence": 0, "reason": "Insufficient data"}
 
@@ -37,20 +29,19 @@ def simple_ml_predict(prices: list) -> dict:
     deltas = np.diff(arr[-15:])
     gains  = deltas[deltas > 0]
     losses = abs(deltas[deltas < 0])
-    avg_gain = np.mean(gains) if len(gains) > 0 else 0
+    avg_gain = np.mean(gains)  if len(gains)  > 0 else 0
     avg_loss = np.mean(losses) if len(losses) > 0 else 0.0001
     rs  = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
 
-    # MACD (12,26 EMA approximation)
+    # MACD
     ema12 = np.mean(arr[-12:])
     ema26 = np.mean(arr[-26:]) if len(arr) >= 26 else np.mean(arr)
     macd  = ema12 - ema26
 
-    # Momentum (last 5 candles)
+    # Momentum
     momentum = (current - arr[-6]) / arr[-6] * 100 if arr[-6] != 0 else 0
 
-    # Score system
     score = 0
     reasons = []
 
@@ -85,14 +76,13 @@ def simple_ml_predict(prices: list) -> dict:
         score -= 1
         reasons.append(f"Weak momentum {momentum:.1f}%")
 
-    # Price vs MA20
     if current > ma20 * 1.02:
         score += 1
     elif current < ma20 * 0.98:
         score -= 1
 
-    # Determine signal
     confidence = min(abs(score) / 7 * 100, 95)
+
     if score >= 3:
         signal = "STRONG BUY"
         color  = "#00e5a0"
@@ -110,7 +100,6 @@ def simple_ml_predict(prices: list) -> dict:
         color  = "#fbbf24"
         confidence = max(confidence, 40)
 
-    # Predicted next price (simple regression)
     if len(arr) >= 5:
         recent = arr[-5:]
         x = np.arange(5)
@@ -143,9 +132,7 @@ async def predict_crypto(
     symbol: str,
     interval: str = Query("1h", regex="^(5m|15m|1h|4h|1d)$")
 ):
-    """AI prediction for crypto symbol using real-time Binance data"""
     try:
-        # Get real-time candles
         candles = await get_crypto_klines(symbol.upper(), interval=interval, limit=60)
         if not candles or len(candles) < 20:
             return {"error": "Insufficient market data", "signal": "NEUTRAL", "confidence": 0}
@@ -160,7 +147,6 @@ async def predict_crypto(
         prediction["market"]        = "crypto"
         prediction["interval"]      = interval
         prediction["data_points"]   = len(prices)
-
         return prediction
     except Exception as e:
         logger.error(f"Crypto prediction error {symbol}: {e}")
@@ -172,7 +158,6 @@ async def predict_nse(
     symbol: str,
     interval: str = Query("1d", regex="^(1h|1d|1wk)$")
 ):
-    """AI prediction for NSE stock"""
     try:
         candles = await get_nse_klines(symbol.upper(), interval=interval)
         if not candles or len(candles) < 20:
@@ -198,7 +183,6 @@ async def predict_bse(
     symbol: str,
     interval: str = Query("1d", regex="^(1h|1d|1wk)$")
 ):
-    """AI prediction for BSE stock"""
     try:
         candles = await get_bse_klines(symbol.upper(), interval=interval)
         if not candles or len(candles) < 20:
