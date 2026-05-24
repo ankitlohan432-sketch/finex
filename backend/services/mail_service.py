@@ -43,7 +43,7 @@ class MailService:
 
         payload = {
             "personalizations": [{"to": [{"email": to_email, "name": to_name}], "subject": subject}],
-            "from": {"email": "noreply@finex.app", "name": "Finex"},
+            "from": {"email": "finexapp.1@gmail.com", "name": "Finex"},
             "content": [{"type": "text/html", "value": html}]
         }
 
@@ -105,7 +105,7 @@ class MailService:
             <p style="color:rgba(255,255,255,0.7);line-height:1.7;margin-bottom:24px">
               Your Finex account is ready. You can now access real-time markets, manage your portfolio, and use our AI financial tools.
             </p>
-            <a href="http://localhost:3000/login" style="display:inline-block;padding:13px 28px;background:#38bdf8;color:#07111e;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px">
+            <a href="https://finex-nu.vercel.app/login" style="display:inline-block;padding:13px 28px;background:#38bdf8;color:#07111e;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px">
               Sign In to Dashboard →
             </a>
             <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:28px 0">
