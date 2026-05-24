@@ -135,4 +135,3 @@ class MailService:
         await self._send(to_email, full_name, "New Login to Your Finex Account", html)
 
 mail_service = MailService()
-
