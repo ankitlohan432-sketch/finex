@@ -4,7 +4,8 @@ import time
 from typing import Dict, List
 
 COINGECKO_BASE = "https://api.coingecko.com/api/v3"
-COINCAP_BASE   = "https://api.coincap.io/v2"
+COINCAP_BASE   = "https://rest.coincap.io/v2"
+COINCAP_BACKUP = "https://min-api.cryptocompare.com/data"
 
 CRYPTO_SYMBOLS = [
     {"symbol":"bitcoin",          "name":"Bitcoin",            "short":"BTC",  "cap_id":"bitcoin"},
@@ -59,7 +60,7 @@ _CG_MIN_INTERVAL = 2.0
 # Cache - 5 minutes = 288 calls/day = safe all month
 _ticker_cache: Dict = {}
 _ticker_cache_time: float = 0
-_TICKER_TTL = 300
+_TICKER_TTL = 600  # 10 minutes
 
 async def _cg_get(url, params):
     global _cg_last_call
@@ -207,3 +208,5 @@ async def get_crypto_klines(symbol: str, interval: str = "1d", limit: int = 60) 
     except Exception as e:
         print(f"CoinGecko klines error {symbol}: {e}")
         return []
+
+
