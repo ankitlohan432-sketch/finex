@@ -221,3 +221,4 @@ async def get_crypto_klines(symbol: str, interval: str = "1d", limit: int = 60) 
         return []
 
 
+
