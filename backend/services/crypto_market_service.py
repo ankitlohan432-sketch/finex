@@ -160,3 +160,4 @@ async def get_crypto_klines(symbol: str, interval: str = "1d", limit: int = 60) 
     except Exception as e:
         print(f"Binance klines error {symbol}: {e}")
         return []
+

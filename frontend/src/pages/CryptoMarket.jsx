@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+﻿import { useEffect, useState, useRef, useCallback } from 'react'
 import { cryptoAPI } from '../services/api'
 import { TrendingUp, TrendingDown, RefreshCw, ChevronDown, Bitcoin, Brain } from 'lucide-react'
 
@@ -58,7 +58,7 @@ function PredictionBadge({ symbol }) {
   }, [symbol])
 
   if (loading) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>...</span>
-  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>—</span>
+  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>â€”</span>
 
   return (
     <span style={{
@@ -87,7 +87,7 @@ function PredictionPanel({ symbol }) {
 
   if (loading) return (
     <div className="card" style={{ marginBottom:12, textAlign:'center', padding:20 }}>
-      <span style={{ color:'var(--text-muted)', fontSize:13 }}>🤖 Running AI prediction...</span>
+      <span style={{ color:'var(--text-muted)', fontSize:13 }}>ðŸ¤– Running AI prediction...</span>
     </div>
   )
 
@@ -138,7 +138,7 @@ function PredictionPanel({ symbol }) {
       {pred.reasons && pred.reasons.length > 0 && (
         <div style={{ fontSize:11, color:'var(--text-muted)' }}>
           {pred.reasons.map((r, i) => (
-            <div key={i} style={{ padding:'3px 0', borderBottom:'1px solid var(--border-light)' }}>• {r}</div>
+            <div key={i} style={{ padding:'3px 0', borderBottom:'1px solid var(--border-light)' }}>â€¢ {r}</div>
           ))}
         </div>
       )}
@@ -194,7 +194,7 @@ export default function CryptoMarket() {
   const changeInterval = (intv) => { setInterval(intv); if (selected) loadCandles(selected, intv) }
 
   const fmt = (n) => {
-    if (!n || n === 0) return '—'
+    if (!n || n === 0) return 'â€”'
     if (n >= 1e9) return `$${(n/1e9).toFixed(2)}B`
     if (n >= 1e6) return `$${(n/1e6).toFixed(2)}M`
     if (n >= 1e3) return `$${n.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2})}`
@@ -227,14 +227,14 @@ export default function CryptoMarket() {
                   <th style={{ padding:'12px 16px', textAlign:'right' }}>High</th>
                   <th style={{ padding:'12px 16px', textAlign:'right' }}>Low</th>
                   <th style={{ padding:'12px 16px', textAlign:'right' }}>Volume</th>
-                  <th style={{ padding:'12px 16px', textAlign:'right' }}>🤖 AI Signal</th>
+                  <th style={{ padding:'12px 16px', textAlign:'right' }}>ðŸ¤– AI Signal</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr><td colSpan={7} style={{ textAlign:'center', padding:40, color:'var(--text-muted)' }}>Loading crypto data...</td></tr>
                 ) : tickers.length === 0 ? (
-                  <tr><td colSpan={7} style={{ textAlign:'center', padding:40, color:'var(--text-muted)' }}>No data. Click refresh ↑</td></tr>
+                  <tr><td colSpan={7} style={{ textAlign:'center', padding:40, color:'var(--text-muted)' }}>No data. Click refresh â†‘</td></tr>
                 ) : tickers.map((t, i) => (
                   <tr key={t.binance_symbol || i}
                     onClick={() => selectTicker(t)}
@@ -247,7 +247,7 @@ export default function CryptoMarket() {
                     <td style={{ padding:'10px 16px', textAlign:'right', fontFamily:'monospace', fontWeight:500 }}>{fmt(t.price)}</td>
                     <td style={{ padding:'10px 16px', textAlign:'right' }}>
                       <span style={{ color:pctColor(t.change_percent), fontFamily:'monospace', fontSize:13 }}>
-                        {t.change_percent >= 0 ? '▲' : '▼'} {Math.abs(t.change_percent).toFixed(2)}%
+                        {t.change_percent >= 0 ? 'â–²' : 'â–¼'} {Math.abs(t.change_percent).toFixed(2)}%
                       </span>
                     </td>
                     <td style={{ padding:'10px 16px', textAlign:'right', fontFamily:'monospace', fontSize:12, color:'var(--success)' }}>{fmt(t.high)}</td>
@@ -296,7 +296,7 @@ export default function CryptoMarket() {
                     <div style={{ textAlign:'right' }}>
                       <div style={{ fontSize:22, fontWeight:700, color:'var(--accent)', fontFamily:'monospace' }}>{fmt(selected.price)}</div>
                       <div style={{ fontSize:13, color:pctColor(selected.change_percent), fontFamily:'monospace' }}>
-                        {selected.change_percent >= 0 ? '▲' : '▼'} {Math.abs(selected.change_percent).toFixed(2)}%
+                        {selected.change_percent >= 0 ? 'â–²' : 'â–¼'} {Math.abs(selected.change_percent).toFixed(2)}%
                       </div>
                     </div>
                   </div>
@@ -349,4 +349,5 @@ export default function CryptoMarket() {
     </div>
   )
 }
+
 
