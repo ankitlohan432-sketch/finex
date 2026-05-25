@@ -12,74 +12,132 @@ function CandleChart({ candles }) {
 
   useEffect(() => {
     if (!ref.current || !candles || candles.length === 0) return
+    
     const loadChart = async () => {
+      await new Promise(r => setTimeout(r, 100))
+      
       if (!window.LightweightCharts) return
-      if (chartRef.current) { chartRef.current.remove(); chartRef.current = null }
-      const chart = window.LightweightCharts.createChart(ref.current, {
-        width:  ref.current.clientWidth,
-        height: 320,
-        layout: { background: { color: '#1e2020' }, textColor: '#849396' },
-        grid:   { vertLines: { color: '#282a2b' }, horzLines: { color: '#282a2b' } },
-        crosshair: { mode: 1 },
-        rightPriceScale: { borderColor: '#3b494c' },
-        timeScale: { borderColor: '#3b494c', timeVisible: true },
-      })
-      const series = chart.addCandlestickSeries({
-        upColor:'#00e5a0', downColor:'#ff6b6b',
-        borderUpColor:'#00e5a0', borderDownColor:'#ff6b6b',
-        wickUpColor:'#00e5a0', wickDownColor:'#ff6b6b',
-      })
-      
-      const candleData = candles
-        .filter(c => c && c.time && c.open && c.high && c.low && c.close)
-        .map(c => ({ 
-          time: Math.floor(c.time / 1000), 
-          open: parseFloat(c.open), 
-          high: parseFloat(c.high), 
-          low: parseFloat(c.low), 
-          close: parseFloat(c.close) 
-        }))
-      
-      if (candleData.length > 0) {
-        series.setData(candleData)
-        chart.timeScale().fitContent()
+      if (chartRef.current) { 
+        chartRef.current.remove()
+        chartRef.current = null 
       }
       
-      chartRef.current = chart
-      const ro = new ResizeObserver(() => {
-        if (ref.current && chartRef.current) chartRef.current.resize(ref.current.clientWidth, 320)
-      })
-      ro.observe(ref.current)
+      try {
+        const chart = window.LightweightCharts.createChart(ref.current, {
+          width:  ref.current.clientWidth,
+          height: 320,
+          layout: { background: { color: '#1a1a1a' }, textColor: '#d1d5db' },
+          grid:   { vertLines: { color: '#2d3748' }, horzLines: { color: '#2d3748' } },
+          crosshair: { mode: 1 },
+          rightPriceScale: { borderColor: '#4b5563' },
+          timeScale: { borderColor: '#4b5563', timeVisible: true },
+        })
+
+        const series = chart.addCandlestickSeries({
+          upColor: '#10b981', 
+          downColor: '#ef4444',
+          borderUpColor: '#10b981', 
+          borderDownColor: '#ef4444',
+          wickUpColor: '#10b981', 
+          wickDownColor: '#ef4444',
+        })
+
+        const candleData = candles
+          .map(c => {
+            const time = typeof c.time === 'number' ? c.time : parseInt(c.time || 0)
+            return {
+              time: time > 10000000000 ? Math.floor(time / 1000) : time,
+              open: parseFloat(c.open || 0),
+              high: parseFloat(c.high || 0),
+              low: parseFloat(c.low || 0),
+              close: parseFloat(c.close || 0),
+            }
+          })
+          .filter(c => c.open && c.high && c.low && c.close && c.time)
+          .sort((a, b) => a.time - b.time)
+
+        if (candleData.length > 0) {
+          series.setData(candleData)
+          chart.timeScale().fitContent()
+          chartRef.current = chart
+          
+          const ro = new ResizeObserver(() => {
+            if (ref.current && chartRef.current) {
+              chartRef.current.resize(ref.current.clientWidth, 320)
+            }
+          })
+          ro.observe(ref.current)
+        }
+      } catch (e) {
+        console.error('Chart render error:', e)
+      }
     }
+    
     loadChart()
-    return () => { if (chartRef.current) { chartRef.current.remove(); chartRef.current = null } }
+    
+    return () => { 
+      if (chartRef.current) { 
+        chartRef.current.remove()
+        chartRef.current = null 
+      } 
+    }
   }, [candles])
 
-  return <div ref={ref} style={{ width:'100%', height:320, borderRadius:8, overflow:'hidden' }} />
+  return <div ref={ref} style={{ width:'100%', height:320, borderRadius:8, overflow:'hidden', background:'#0f0f0f' }} />
 }
 
 function PredictionBadge({ symbol }) {
   const [pred, setPred] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [retries, setRetries] = useState(0)
 
-  useEffect(() => {
+  const fetchPrediction = useCallback(async (attempt = 0) => {
     if (!symbol) return
-    setLoading(true)
-    fetch(`${API_BASE}/predict/crypto/${symbol}?interval=1h`)
-      .then(r => r.json())
-      .then(d => { setPred(d); setLoading(false) })
-      .catch(() => { setPred(null); setLoading(false) })
+    
+    try {
+      const response = await fetch(`${API_BASE}/predict/crypto/${symbol}?interval=1h`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      
+      const data = await response.json()
+      if (data && !data.error) {
+        setPred(data)
+        setLoading(false)
+      } else {
+        throw new Error('No prediction data')
+      }
+    } catch (e) {
+      if (attempt < 2) {
+        setTimeout(() => {
+          setRetries(attempt + 1)
+          fetchPrediction(attempt + 1)
+        }, 500)
+      } else {
+        setPred(null)
+        setLoading(false)
+      }
+    }
   }, [symbol])
 
-  if (loading) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>...</span>
-  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>—</span>
+  useEffect(() => {
+    setLoading(true)
+    setPred(null)
+    fetchPrediction(0)
+  }, [symbol, fetchPrediction])
+
+  if (loading) return <span style={{ fontSize:11, color:'#9ca3af' }}>...</span>
+  if (!pred) return <span style={{ fontSize:11, color:'#9ca3af' }}>—</span>
 
   return (
     <span style={{
-      fontSize:11, fontWeight:700, padding:'2px 8px', borderRadius:20,
-      background: pred.color + '22', color: pred.color, border:`1px solid ${pred.color}44`
+      fontSize:11, 
+      fontWeight:700, 
+      padding:'2px 8px', 
+      borderRadius:20,
+      background: (pred.color || '#3b82f6') + '33', 
+      color: pred.color || '#3b82f6', 
+      border:`1px solid ${(pred.color || '#3b82f6') + '66}`
     }}>
-      {pred.signal} {pred.confidence}%
+      {pred.signal || '?'} {pred.confidence || '0'}%
     </span>
   )
 }
@@ -88,24 +146,46 @@ function PredictionPanel({ symbol }) {
   const [pred, setPred] = useState(null)
   const [loading, setLoading] = useState(true)
   const [interval, setInterval] = useState('1h')
+  const [retries, setRetries] = useState(0)
 
-  const load = (intv) => {
+  const load = useCallback(async (intv, attempt = 0) => {
+    if (!symbol) return
+    
     setLoading(true)
-    fetch(`${API_BASE}/predict/crypto/${symbol}?interval=${intv}`)
-      .then(r => r.json())
-      .then(d => { setPred(d); setLoading(false) })
-      .catch(() => { setPred(null); setLoading(false) })
-  }
+    try {
+      const response = await fetch(`${API_BASE}/predict/crypto/${symbol}?interval=${intv}`)
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      
+      const data = await response.json()
+      if (data && !data.error) {
+        setPred(data)
+        setLoading(false)
+      } else {
+        throw new Error('No prediction data')
+      }
+    } catch (e) {
+      if (attempt < 2) {
+        setTimeout(() => {
+          load(intv, attempt + 1)
+        }, 500)
+      } else {
+        setPred(null)
+        setLoading(false)
+      }
+    }
+  }, [symbol])
 
-  useEffect(() => { if (symbol) load(interval) }, [symbol, interval])
+  useEffect(() => {
+    if (symbol) load(interval, 0)
+  }, [symbol, interval, load])
 
   if (loading) return (
     <div className="card" style={{ marginBottom:12, textAlign:'center', padding:20 }}>
-      <span style={{ color:'var(--text-muted)', fontSize:13 }}>🤖 Running AI prediction...</span>
+      <span style={{ color:'#9ca3af', fontSize:13 }}>🤖 Loading prediction...</span>
     </div>
   )
 
-  if (!pred || pred.error) return null
+  if (!pred) return null
 
   return (
     <div className="card" style={{ marginBottom:12 }}>
@@ -114,7 +194,7 @@ function PredictionPanel({ symbol }) {
         <span style={{ fontWeight:700, fontSize:14 }}>AI Prediction</span>
         <div style={{ marginLeft:'auto', display:'flex', gap:4 }}>
           {['5m','15m','1h','4h','1d'].map(i => (
-            <button key={i} onClick={() => load(i)}
+            <button key={i} onClick={() => { setInterval(i); load(i, 0) }}
               style={{ fontSize:10, padding:'2px 6px', borderRadius:4, border:'1px solid var(--border-light)',
                 background: interval===i ? 'var(--accent)' : 'transparent',
                 color: interval===i ? '#fff' : 'var(--text-muted)', cursor:'pointer' }}>
@@ -124,22 +204,20 @@ function PredictionPanel({ symbol }) {
         </div>
       </div>
 
-      {/* Signal */}
       <div style={{ textAlign:'center', marginBottom:16 }}>
-        <div style={{ fontSize:28, fontWeight:900, color:pred.color }}>{pred.signal}</div>
-        <div style={{ fontSize:12, color:'var(--text-muted)' }}>Confidence: {pred.confidence}%</div>
+        <div style={{ fontSize:28, fontWeight:900, color:pred.color || '#3b82f6' }}>{pred.signal || '?'}</div>
+        <div style={{ fontSize:12, color:'var(--text-muted)' }}>Confidence: {pred.confidence || 0}%</div>
         <div style={{ background:'var(--bg-card-high)', borderRadius:8, height:6, marginTop:8 }}>
-          <div style={{ width:`${pred.confidence}%`, height:6, borderRadius:8, background:pred.color, transition:'width 0.5s' }} />
+          <div style={{ width:`${pred.confidence || 0}%`, height:6, borderRadius:8, background:pred.color || '#3b82f6', transition:'width 0.5s' }} />
         </div>
       </div>
 
-      {/* Stats grid */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
         {[
-          ['Predicted Price', `$${pred.predicted_price?.toLocaleString()}`, pred.color],
-          ['Expected Change', `${pred.change_pct >= 0 ? '+' : ''}${pred.change_pct}%`, pred.color],
-          ['RSI', pred.rsi, pred.rsi > 70 ? '#ff6b6b' : pred.rsi < 30 ? '#00e5a0' : '#fbbf24'],
-          ['Momentum', `${pred.momentum >= 0 ? '+' : ''}${pred.momentum}%`, pred.momentum >= 0 ? '#00e5a0' : '#ff6b6b'],
+          ['Predicted Price', `$${pred.predicted_price?.toLocaleString() || 'N/A'}`, pred.color || '#3b82f6'],
+          ['Expected Change', `${pred.change_pct >= 0 ? '+' : ''}${pred.change_pct || 0}%`, pred.color || '#3b82f6'],
+          ['RSI', pred.rsi || 'N/A', pred.rsi > 70 ? '#ef4444' : pred.rsi < 30 ? '#10b981' : '#f59e0b'],
+          ['Momentum', `${pred.momentum >= 0 ? '+' : ''}${pred.momentum || 0}%`, pred.momentum >= 0 ? '#10b981' : '#ef4444'],
         ].map(([label, val, color]) => (
           <div key={label} style={{ background:'var(--bg-card-high)', borderRadius:8, padding:'8px 12px' }}>
             <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:2 }}>{label}</div>
@@ -148,7 +226,6 @@ function PredictionPanel({ symbol }) {
         ))}
       </div>
 
-      {/* Reasons */}
       {pred.reasons && pred.reasons.length > 0 && (
         <div style={{ fontSize:11, color:'var(--text-muted)' }}>
           {pred.reasons.map((r, i) => (
@@ -173,10 +250,14 @@ export default function CryptoMarket() {
   const [scriptLoaded, setScriptLoaded]   = useState(false)
 
   useEffect(() => {
-    if (window.LightweightCharts) { setScriptLoaded(true); return }
+    if (window.LightweightCharts) { 
+      setScriptLoaded(true)
+      return 
+    }
     const s = document.createElement('script')
     s.src = 'https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js'
     s.onload = () => setScriptLoaded(true)
+    s.onerror = () => console.error('Chart library failed to load')
     document.head.appendChild(s)
   }, [])
 
@@ -194,21 +275,33 @@ export default function CryptoMarket() {
     } finally { setLoading(false); setLoadingMore(false) }
   }, [page])
 
-  useEffect(() => { loadTickers(true) }, [])
+  useEffect(() => { 
+    loadTickers(true) 
+  }, [])
 
   const loadCandles = async (sym, intv) => {
     setCandleLoading(true)
     try {
       const res = await cryptoAPI.klines(sym.cg_id || sym.symbol, intv, 100)
-      setCandles(res.data || [])
+      const data = res.data || []
+      setCandles(data)
     } catch(e) {
       console.error('Candle load error:', e)
       setCandles([])
-    } finally { setCandleLoading(false) }
+    } finally { 
+      setCandleLoading(false) 
+    }
   }
 
-  const selectTicker = (t) => { setSelected(t); loadCandles(t, interval) }
-  const changeInterval = (intv) => { setInterval(intv); if (selected) loadCandles(selected, intv) }
+  const selectTicker = (t) => { 
+    setSelected(t)
+    loadCandles(t, interval) 
+  }
+
+  const changeInterval = (intv) => { 
+    setInterval(intv)
+    if (selected) loadCandles(selected, intv) 
+  }
 
   const fmt = (n) => {
     if (!n || n === 0) return 'N/A'
@@ -332,12 +425,13 @@ export default function CryptoMarket() {
 
                 <div style={{ position:'relative', minHeight:320 }}>
                   {candleLoading && (
-                    <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(30,32,32,0.7)', zIndex:2, borderRadius:8 }}>
+                    <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(15,15,15,0.8)', zIndex:2, borderRadius:8 }}>
                       <span style={{ color:'var(--text-muted)', fontSize:13 }}>Loading candles...</span>
                     </div>
                   )}
                   {scriptLoaded && candles.length > 0 && <CandleChart candles={candles} />}
-                  {!scriptLoaded && <div style={{ height:320, display:'flex', alignItems:'center', justifyContent:'center', color:'var(--text-muted)' }}>Loading chart...</div>}
+                  {scriptLoaded && candles.length === 0 && !candleLoading && <div style={{ height:320, display:'flex', alignItems:'center', justifyContent:'center', color:'var(--text-muted)', background:'#0f0f0f', borderRadius:8 }}>No candle data available</div>}
+                  {!scriptLoaded && <div style={{ height:320, display:'flex', alignItems:'center', justifyContent:'center', color:'var(--text-muted)', background:'#0f0f0f', borderRadius:8 }}>Loading chart...</div>}
                 </div>
 
                 <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginTop:12 }}>
