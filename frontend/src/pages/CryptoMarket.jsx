@@ -1,4 +1,4 @@
-﻿﻿import { useEffect, useState, useRef, useCallback } from 'react'
+﻿import { useEffect, useState, useRef, useCallback } from 'react'
 import { cryptoAPI } from '../services/api'
 import { TrendingUp, TrendingDown, RefreshCw, ChevronDown, Bitcoin, Brain } from 'lucide-react'
 
@@ -58,7 +58,7 @@ function PredictionBadge({ symbol }) {
   }, [symbol])
 
   if (loading) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>...</span>
-  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>â€”</span>
+  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>🤖</span>
 
   return (
     <span style={{
@@ -87,7 +87,7 @@ function PredictionPanel({ symbol }) {
 
   if (loading) return (
     <div className="card" style={{ marginBottom:12, textAlign:'center', padding:20 }}>
-      <span style={{ color:'var(--text-muted)', fontSize:13 }}>ðŸ¤– Running AI prediction...</span>
+      <span style={{ color:'var(--text-muted)', fontSize:13 }}>🤖 Running AI prediction...</span>
     </div>
   )
 
@@ -138,7 +138,7 @@ function PredictionPanel({ symbol }) {
       {pred.reasons && pred.reasons.length > 0 && (
         <div style={{ fontSize:11, color:'var(--text-muted)' }}>
           {pred.reasons.map((r, i) => (
-            <div key={i} style={{ padding:'3px 0', borderBottom:'1px solid var(--border-light)' }}>â€¢ {r}</div>
+            <div key={i} style={{ padding:'3px 0', borderBottom:'1px solid var(--border-light)' }}>🤖 {r}</div>
           ))}
         </div>
       )}
@@ -227,7 +227,7 @@ export default function CryptoMarket() {
                   <th style={{ padding:'12px 16px', textAlign:'right' }}>High</th>
                   <th style={{ padding:'12px 16px', textAlign:'right' }}>Low</th>
                   <th style={{ padding:'12px 16px', textAlign:'right' }}>Volume</th>
-                  <th style={{ padding:'12px 16px', textAlign:'right' }}>ðŸ¤– AI Signal</th>
+                  <th style={{ padding:'12px 16px', textAlign:'right' }}> AI Signal</th>
                 </tr>
               </thead>
               <tbody>
@@ -247,7 +247,7 @@ export default function CryptoMarket() {
                     <td style={{ padding:'10px 16px', textAlign:'right', fontFamily:'monospace', fontWeight:500 }}>{fmt(t.price)}</td>
                     <td style={{ padding:'10px 16px', textAlign:'right' }}>
                       <span style={{ color:pctColor(t.change_percent), fontFamily:'monospace', fontSize:13 }}>
-                        {t.change_percent >= 0 ? 'â–²' : 'â–¼'} {Math.abs(t.change_percent).toFixed(2)}%
+                        {t.change_percent >= 0 ? '🤖' : '❌'} {Math.abs(t.change_percent).toFixed(2)}%
                       </span>
                     </td>
                     <td style={{ padding:'10px 16px', textAlign:'right', fontFamily:'monospace', fontSize:12, color:'var(--success)' }}>{fmt(t.high)}</td>
@@ -296,7 +296,7 @@ export default function CryptoMarket() {
                     <div style={{ textAlign:'right' }}>
                       <div style={{ fontSize:22, fontWeight:700, color:'var(--accent)', fontFamily:'monospace' }}>{fmt(selected.price)}</div>
                       <div style={{ fontSize:13, color:pctColor(selected.change_percent), fontFamily:'monospace' }}>
-                        {selected.change_percent >= 0 ? 'â–²' : 'â–¼'} {Math.abs(selected.change_percent).toFixed(2)}%
+                        {selected.change_percent >= 0 ? '🤖' : '❌'} {Math.abs(selected.change_percent).toFixed(2)}%
                       </div>
                     </div>
                   </div>
