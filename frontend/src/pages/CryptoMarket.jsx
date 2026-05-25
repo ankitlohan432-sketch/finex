@@ -29,8 +29,22 @@ function CandleChart({ candles }) {
         borderUpColor:'#00e5a0', borderDownColor:'#ff6b6b',
         wickUpColor:'#00e5a0', wickDownColor:'#ff6b6b',
       })
-      series.setData(candles.map(c => ({ time:c.time, open:c.open, high:c.high, low:c.low, close:c.close })))
-      chart.timeScale().fitContent()
+      
+      const candleData = candles
+        .filter(c => c && c.time && c.open && c.high && c.low && c.close)
+        .map(c => ({ 
+          time: Math.floor(c.time / 1000), 
+          open: parseFloat(c.open), 
+          high: parseFloat(c.high), 
+          low: parseFloat(c.low), 
+          close: parseFloat(c.close) 
+        }))
+      
+      if (candleData.length > 0) {
+        series.setData(candleData)
+        chart.timeScale().fitContent()
+      }
+      
       chartRef.current = chart
       const ro = new ResizeObserver(() => {
         if (ref.current && chartRef.current) chartRef.current.resize(ref.current.clientWidth, 320)
@@ -54,11 +68,11 @@ function PredictionBadge({ symbol }) {
     fetch(`${API_BASE}/predict/crypto/${symbol}?interval=1h`)
       .then(r => r.json())
       .then(d => { setPred(d); setLoading(false) })
-      .catch(() => setLoading(false))
+      .catch(() => { setPred(null); setLoading(false) })
   }, [symbol])
 
   if (loading) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>...</span>
-  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}> 🤖</span>
+  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>—</span>
 
   return (
     <span style={{
@@ -80,10 +94,10 @@ function PredictionPanel({ symbol }) {
     fetch(`${API_BASE}/predict/crypto/${symbol}?interval=${intv}`)
       .then(r => r.json())
       .then(d => { setPred(d); setLoading(false) })
-      .catch(() => setLoading(false))
+      .catch(() => { setPred(null); setLoading(false) })
   }
 
-  useEffect(() => { if (symbol) load(interval) }, [symbol])
+  useEffect(() => { if (symbol) load(interval) }, [symbol, interval])
 
   if (loading) return (
     <div className="card" style={{ marginBottom:12, textAlign:'center', padding:20 }}>
@@ -100,7 +114,7 @@ function PredictionPanel({ symbol }) {
         <span style={{ fontWeight:700, fontSize:14 }}>AI Prediction</span>
         <div style={{ marginLeft:'auto', display:'flex', gap:4 }}>
           {['5m','15m','1h','4h','1d'].map(i => (
-            <button key={i} onClick={() => { setInterval(i); load(i) }}
+            <button key={i} onClick={() => load(i)}
               style={{ fontSize:10, padding:'2px 6px', borderRadius:4, border:'1px solid var(--border-light)',
                 background: interval===i ? 'var(--accent)' : 'transparent',
                 color: interval===i ? '#fff' : 'var(--text-muted)', cursor:'pointer' }}>
@@ -153,7 +167,7 @@ export default function CryptoMarket() {
   const [loading,   setLoading]   = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [selected,  setSelected]  = useState(null)
-  const [candles,   setCandles]   = useState([true])
+  const [candles,   setCandles]   = useState([])
   const [interval,  setInterval]  = useState('1d')
   const [candleLoading, setCandleLoading] = useState(false)
   const [scriptLoaded, setScriptLoaded]   = useState(false)
@@ -187,6 +201,9 @@ export default function CryptoMarket() {
     try {
       const res = await cryptoAPI.klines(sym.cg_id || sym.symbol, intv, 100)
       setCandles(res.data || [])
+    } catch(e) {
+      console.error('Candle load error:', e)
+      setCandles([])
     } finally { setCandleLoading(false) }
   }
 
@@ -234,7 +251,7 @@ export default function CryptoMarket() {
                 {loading ? (
                   <tr><td colSpan={7} style={{ textAlign:'center', padding:40, color:'var(--text-muted)' }}>Loading crypto data...</td></tr>
                 ) : tickers.length === 0 ? (
-                  <tr><td colSpan={7} style={{ textAlign:'center', padding:40, color:'var(--text-muted)' }}>No data. Click refresh â†‘</td></tr>
+                  <tr><td colSpan={7} style={{ textAlign:'center', padding:40, color:'var(--text-muted)' }}>No data. Click refresh →</td></tr>
                 ) : tickers.map((t, i) => (
                   <tr key={t.binance_symbol || i}
                     onClick={() => selectTicker(t)}
@@ -247,7 +264,7 @@ export default function CryptoMarket() {
                     <td style={{ padding:'10px 16px', textAlign:'right', fontFamily:'monospace', fontWeight:500 }}>{fmt(t.price)}</td>
                     <td style={{ padding:'10px 16px', textAlign:'right' }}>
                       <span style={{ color:pctColor(t.change_percent), fontFamily:'monospace', fontSize:13 }}>
-                        {t.change_percent >= 0 ? '🤖' : '❌'} {Math.abs(t.change_percent).toFixed(2)}%
+                        {t.change_percent >= 0 ? '+' : ''}{t.change_percent?.toFixed(2) || '0.00'}%
                       </span>
                     </td>
                     <td style={{ padding:'10px 16px', textAlign:'right', fontFamily:'monospace', fontSize:12, color:'var(--success)' }}>{fmt(t.high)}</td>
@@ -265,13 +282,13 @@ export default function CryptoMarket() {
           {hasMore && !loading && (
             <div style={{ padding:'12px 16px', textAlign:'center', borderTop:'1px solid var(--border-light)' }}>
               <button className="btn btn-ghost btn-sm" onClick={() => {
-  const nextPage = tickers.length / PAGE_SIZE
-  setLoadingMore(true)
-  cryptoAPI.tickers(nextPage, PAGE_SIZE)
-    .then(res => { const data = res.data || []; setTickers(prev => [...prev, ...data]); setHasMore(data.length === PAGE_SIZE) })
-    .catch(e => console.error(e))
-    .finally(() => setLoadingMore(false))
-}} disabled={loadingMore} style={{ gap:6 }}>
+                const nextPage = tickers.length / PAGE_SIZE
+                setLoadingMore(true)
+                cryptoAPI.tickers(nextPage, PAGE_SIZE)
+                  .then(res => { const data = res.data || []; setTickers(prev => [...prev, ...data]); setHasMore(data.length === PAGE_SIZE) })
+                  .catch(e => console.error(e))
+                  .finally(() => setLoadingMore(false))
+              }} disabled={loadingMore} style={{ gap:6 }}>
                 <ChevronDown size={14} />
                 {loadingMore ? 'Loading...' : 'Load More Coins'}
               </button>
@@ -296,7 +313,7 @@ export default function CryptoMarket() {
                     <div style={{ textAlign:'right' }}>
                       <div style={{ fontSize:22, fontWeight:700, color:'var(--accent)', fontFamily:'monospace' }}>{fmt(selected.price)}</div>
                       <div style={{ fontSize:13, color:pctColor(selected.change_percent), fontFamily:'monospace' }}>
-                      {selected.change_percent >= 0 ? 'N/A' : 'N/A'} {Math.abs(selected.change_percent).toFixed(2)}%
+                        {selected.change_percent >= 0 ? '+' : ''}{selected.change_percent?.toFixed(2) || '0.00'}%
                       </div>
                     </div>
                   </div>
@@ -349,10 +366,3 @@ export default function CryptoMarket() {
     </div>
   )
 }
-
-
-
-
-
-
-
