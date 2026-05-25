@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+env/
+.venv/
+
+# Environment
+.env
+*.env
+.env.local
+.env.production
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+database/
+
+# Logs
+logs/
+*.log
+
+# Data (CSV activity files - generated at runtime)
+data/
+
+# ML Models (too large for git)
+backend/ml_dl/models/saved_models/*.pkl
+backend/ml_dl/models/saved_models/*.h5
+backend/ml_dl/models/saved_models/*.joblib
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# SSL
+ssl/
+
+# OS
+.DS_Store
+Thumbs.db
