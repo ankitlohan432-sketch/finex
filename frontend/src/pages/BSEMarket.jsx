@@ -86,7 +86,7 @@ export default function BSEMarket() {
   const selectTicker = (t) => { setSelected(t); loadCandles(t.symbol, interval) }
   const changeInterval = (intv) => { setInterval(intv); if (selected) loadCandles(selected.symbol, intv) }
 
-  const inr = (n) => n && n > 0 ? `â‚¹${Number(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2})}` : 'â€”'
+  const inr = (n) => n && n > 0 ? `â‚¹${Number(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2})}` : 'N/A'
   const pctColor = (v) => v >= 0 ? 'var(--success)' : 'var(--danger)'
 
   return (
@@ -187,7 +187,7 @@ export default function BSEMarket() {
                   <div>
                     <div style={{ fontSize:11, color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:0.5 }}>24h Change</div>
                     <div style={{ fontSize:18, fontWeight:700, color:pctColor(selected.change_percent), marginTop:4 }}>
-                      {selected.change_percent >= 0 ? '+' : ''}{selected.change_percent.toFixed(2)}%
+                      {selected.change_percent >= 0 ? '🤖' : '❌'} {Math.abs(selected.change_percent).toFixed(2)}%
                     </div>
                   </div>
                 </div>
