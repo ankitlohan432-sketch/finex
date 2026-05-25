@@ -58,7 +58,7 @@ function PredictionBadge({ symbol }) {
   }, [symbol])
 
   if (loading) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>...</span>
-  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}>🤖</span>
+  if (!pred || pred.error) return <span style={{ fontSize:11, color:'var(--text-muted)' }}> 🤖</span>
 
   return (
     <span style={{
@@ -153,7 +153,7 @@ export default function CryptoMarket() {
   const [loading,   setLoading]   = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [selected,  setSelected]  = useState(null)
-  const [candles,   setCandles]   = useState([])
+  const [candles,   setCandles]   = useState([true])
   const [interval,  setInterval]  = useState('1d')
   const [candleLoading, setCandleLoading] = useState(false)
   const [scriptLoaded, setScriptLoaded]   = useState(false)
@@ -194,7 +194,7 @@ export default function CryptoMarket() {
   const changeInterval = (intv) => { setInterval(intv); if (selected) loadCandles(selected, intv) }
 
   const fmt = (n) => {
-    if (!n || n === 0) return 'â€”'
+    if (!n || n === 0) return 'N/A'
     if (n >= 1e9) return `$${(n/1e9).toFixed(2)}B`
     if (n >= 1e6) return `$${(n/1e6).toFixed(2)}M`
     if (n >= 1e3) return `$${n.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2})}`
@@ -296,7 +296,7 @@ export default function CryptoMarket() {
                     <div style={{ textAlign:'right' }}>
                       <div style={{ fontSize:22, fontWeight:700, color:'var(--accent)', fontFamily:'monospace' }}>{fmt(selected.price)}</div>
                       <div style={{ fontSize:13, color:pctColor(selected.change_percent), fontFamily:'monospace' }}>
-                        {selected.change_percent >= 0 ? '🤖' : '❌'} {Math.abs(selected.change_percent).toFixed(2)}%
+                      {selected.change_percent >= 0 ? 'N/A' : 'N/A'} {Math.abs(selected.change_percent).toFixed(2)}%
                       </div>
                     </div>
                   </div>
