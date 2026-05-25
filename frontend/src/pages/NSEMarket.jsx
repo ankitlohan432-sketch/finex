@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+﻿import { useEffect, useState, useRef, useCallback } from 'react'
 import { nseAPI } from '../services/api'
 import PredictionCard from '../components/PredictionCard'
 import { IndianRupee, RefreshCw, ChevronDown, TrendingUp, TrendingDown } from 'lucide-react'

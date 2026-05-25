@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef, useCallback } from 'react'
+﻿﻿import { useEffect, useState, useRef, useCallback } from 'react'
 import { bseAPI } from '../services/api'
 import PredictionCard from '../components/PredictionCard'
 import { Building2, RefreshCw, ChevronDown, TrendingUp, TrendingDown } from 'lucide-react'

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef, useCallback } from 'react'
+﻿﻿import { useEffect, useState, useRef, useCallback } from 'react'
 import { cryptoAPI } from '../services/api'
 import { TrendingUp, TrendingDown, RefreshCw, ChevronDown, Bitcoin, Brain } from 'lucide-react'
 

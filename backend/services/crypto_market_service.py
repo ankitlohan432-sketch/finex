@@ -187,7 +187,12 @@ async def get_crypto_ticker(symbol: str) -> Dict:
         print(f"Ticker error {symbol}: {e}")
     return None
 
+BINANCE_TO_CG = {c["short"]+"USDT": c["symbol"] for c in CRYPTO_SYMBOLS}
+SHORT_TO_CG   = {c["short"]: c["symbol"] for c in CRYPTO_SYMBOLS}
+
 async def get_crypto_klines(symbol: str, interval: str = "1d", limit: int = 60) -> List[Dict]:
+    cg_symbol = BINANCE_TO_CG.get(symbol.upper()) or SHORT_TO_CG.get(symbol.upper()) or symbol.lower()
+    symbol = cg_symbol
     try:
         days_map = {"5m": 1, "15m": 1, "1h": 7, "4h": 14, "1d": 60, "1wk": 180}
         days = days_map.get(interval, 7)
@@ -214,4 +219,5 @@ async def get_crypto_klines(symbol: str, interval: str = "1d", limit: int = 60) 
     except Exception as e:
         print(f"Klines error {symbol}: {e}")
         return []
+
 
