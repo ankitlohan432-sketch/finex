@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+﻿import { useEffect, useState, useRef, useCallback } from 'react'
 import { bseAPI } from '../services/api'
 import PredictionCard from '../components/PredictionCard'
 import { Building2, RefreshCw, ChevronDown, TrendingUp, TrendingDown } from 'lucide-react'
@@ -86,7 +86,7 @@ export default function BSEMarket() {
   const selectTicker = (t) => { setSelected(t); loadCandles(t.symbol, interval) }
   const changeInterval = (intv) => { setInterval(intv); if (selected) loadCandles(selected.symbol, intv) }
 
-  const inr = (n) => n && n > 0 ? `₹${Number(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2})}` : '—'
+  const inr = (n) => n && n > 0 ? `â‚¹${Number(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2})}` : 'â€”'
   const pctColor = (v) => v >= 0 ? 'var(--success)' : 'var(--danger)'
 
   return (
@@ -260,3 +260,4 @@ export default function BSEMarket() {
     </div>
   )
 }
+

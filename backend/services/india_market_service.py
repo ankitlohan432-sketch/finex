@@ -1,4 +1,4 @@
-"""
+﻿"""
 FINEX - Indian Stock Market Service (NSE + BSE)
 Uses NSE India open API + Yahoo Finance as fallback (no key needed)
 """
@@ -183,3 +183,4 @@ async def get_india_indices() -> List[Dict]:
         if q:
             out.append({"name": idx["name"], **q})
     return out
+
