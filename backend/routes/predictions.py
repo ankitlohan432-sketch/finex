@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["AI Predictions"])
 
 def simple_ml_predict(prices: list) -> dict:
-    if len(prices) < 20:
+    if len(prices) < 10:
         return {"signal": "NEUTRAL", "confidence": 0, "reason": "Insufficient data"}
 
     arr = np.array(prices, dtype=float)
@@ -134,7 +134,7 @@ async def predict_crypto(
 ):
     try:
         candles = await get_crypto_klines(symbol.upper(), interval=interval, limit=60)
-        if not candles or len(candles) < 20:
+        if not candles or len(candles) < 10:
             return {"error": "Insufficient market data", "signal": "NEUTRAL", "confidence": 0}
 
         prices = [c["close"] for c in candles]
@@ -160,7 +160,7 @@ async def predict_nse(
 ):
     try:
         candles = await get_nse_klines(symbol.upper(), interval=interval)
-        if not candles or len(candles) < 20:
+        if not candles or len(candles) < 10:
             return {"error": "Insufficient data", "signal": "NEUTRAL", "confidence": 0}
 
         prices = [c["close"] for c in candles]
@@ -185,7 +185,7 @@ async def predict_bse(
 ):
     try:
         candles = await get_bse_klines(symbol.upper(), interval=interval)
-        if not candles or len(candles) < 20:
+        if not candles or len(candles) < 10:
             return {"error": "Insufficient data", "signal": "NEUTRAL", "confidence": 0}
 
         prices = [c["close"] for c in candles]
@@ -201,3 +201,4 @@ async def predict_bse(
     except Exception as e:
         logger.error(f"BSE prediction error {symbol}: {e}")
         return {"error": str(e), "signal": "NEUTRAL", "confidence": 0}
+
