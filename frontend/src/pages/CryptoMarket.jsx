@@ -51,7 +51,7 @@ function PredictionBadge({ symbol }) {
   useEffect(() => {
     if (!symbol) return
     setLoading(true)
-    fetch(`${API_BASE}/predict/crypto/${cgId || symbol}?interval=1h`)
+    fetch(`${API_BASE}/predict/crypto/${symbol}?interval=1h`)
       .then(r => r.json())
       .then(d => { setPred(d); setLoading(false) })
       .catch(() => setLoading(false))
@@ -77,7 +77,7 @@ function PredictionPanel({ symbol }) {
 
   const load = (intv) => {
     setLoading(true)
-    fetch(`${API_BASE}/predict/crypto/${cgId || symbol}?interval=${intv}`)
+    fetch(`${API_BASE}/predict/crypto/${symbol}?interval=${intv}`)
       .then(r => r.json())
       .then(d => { setPred(d); setLoading(false) })
       .catch(() => setLoading(false))
@@ -349,6 +349,7 @@ export default function CryptoMarket() {
     </div>
   )
 }
+
 
 
 
