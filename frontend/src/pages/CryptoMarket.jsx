@@ -51,7 +51,7 @@ function PredictionBadge({ symbol }) {
   useEffect(() => {
     if (!symbol) return
     setLoading(true)
-    fetch(`${API_BASE}/predict/crypto/${symbol}?interval=1h`)
+    fetch(`${API_BASE}/predict/crypto/${cgId || symbol}?interval=1h`)
       .then(r => r.json())
       .then(d => { setPred(d); setLoading(false) })
       .catch(() => setLoading(false))
@@ -77,7 +77,7 @@ function PredictionPanel({ symbol }) {
 
   const load = (intv) => {
     setLoading(true)
-    fetch(`${API_BASE}/predict/crypto/${symbol}?interval=${intv}`)
+    fetch(`${API_BASE}/predict/crypto/${cgId || symbol}?interval=${intv}`)
       .then(r => r.json())
       .then(d => { setPred(d); setLoading(false) })
       .catch(() => setLoading(false))
@@ -185,7 +185,7 @@ export default function CryptoMarket() {
   const loadCandles = async (sym, intv) => {
     setCandleLoading(true)
     try {
-      const res = await cryptoAPI.klines(sym.binance_symbol, intv, 100)
+      const res = await cryptoAPI.klines(sym.cg_id || sym.symbol, intv, 100)
       setCandles(res.data || [])
     } finally { setCandleLoading(false) }
   }
@@ -349,5 +349,8 @@ export default function CryptoMarket() {
     </div>
   )
 }
+
+
+
 
 

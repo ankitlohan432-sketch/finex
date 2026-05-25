@@ -139,6 +139,7 @@ async def get_all_crypto_tickers(page: int = 0, page_size: int = 10) -> List[Dic
                 results.append({
                     "symbol":         meta["short"],
                     "binance_symbol": meta["short"] + "USDT",
+                    "cg_id": cg_id,
                     "name":           meta["name"],
                     "price":          float(coin.get("current_price") or 0),
                     "change":         float(coin.get("price_change_24h") or 0),
@@ -213,3 +214,4 @@ async def get_crypto_klines(symbol: str, interval: str = "1d", limit: int = 60) 
     except Exception as e:
         print(f"Klines error {symbol}: {e}")
         return []
+
