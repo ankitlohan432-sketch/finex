@@ -81,7 +81,6 @@ export default function Landing() {
             borderRadius:20, marginBottom:24,
             color:'#3d7a6f', fontSize:12, fontWeight:600, letterSpacing:0.05, textTransform:'uppercase'
           }}>
-            🚀 Welcome to the future of finance
           </div>
 
           <h1 style={{
