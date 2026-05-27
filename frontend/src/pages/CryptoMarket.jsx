@@ -135,7 +135,7 @@ function PredictionBadge({ symbol }) {
       borderRadius:20,
       background: (pred.color || '#3b82f6') + '33', 
       color: pred.color || '#3b82f6', 
-      border:`1px solid ${(pred.color || '#3b82f6') + '66}`
+     border: `1px solid ${(pred.color || '#3b82f6') + '66'}`,
     }}>
       {pred.signal || '?'} {pred.confidence || '0'}%
     </span>
