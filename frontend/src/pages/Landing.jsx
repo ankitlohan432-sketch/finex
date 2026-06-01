@@ -26,10 +26,12 @@ export default function Landing() {
         borderBottom: '1px solid #c7b198',
         position: 'sticky', top: 0, zIndex: 100
       }}>
-        {/* Logo — dark so it's visible on linen navbar */}
-        <div style={{ fontSize: 24, fontWeight: 700, color: '#2c3a40', fontFamily: "'Lexend'" }}>
-          FIN<span style={{ color: '#3d7a6f' }}>EX</span>
-        </div>
+        {/* Logo image */}
+        <img
+          src="/finex-logo.png"
+          alt="FINEX"
+          style={{ height: 44, width: 'auto', objectFit: 'contain' }}
+        />
 
         <div style={{ display: 'flex', gap: 16 }}>
           {/* Login button — dark border + dark text */}
@@ -75,12 +77,19 @@ export default function Landing() {
         <div style={{ position:'absolute', width:300, height:300, background:'radial-gradient(circle, rgba(199,177,152,0.12) 0%, transparent 70%)', borderRadius:'50%', bottom:-50, left:-50, animation:'float 8s ease-in-out infinite' }} />
 
         <div style={{ maxWidth:1200, textAlign:'center', position:'relative', zIndex:2 }}>
-          <div style={{
-            display:'inline-block', padding:'8px 16px',
-            background:'rgba(61,122,111,0.10)', border:'1px solid rgba(61,122,111,0.25)',
-            borderRadius:20, marginBottom:24,
-            color:'#3d7a6f', fontSize:12, fontWeight:600, letterSpacing:0.05, textTransform:'uppercase'
-          }}>
+
+          {/* Hero Logo */}
+          <div style={{ marginBottom: 32 }}>
+            <img
+              src="/finex-logo.png"
+              alt="FINEX"
+              style={{
+                height: 120,
+                width: 'auto',
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 8px 24px rgba(61,122,111,0.20))',
+              }}
+            />
           </div>
 
           <h1 style={{

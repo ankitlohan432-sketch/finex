@@ -59,7 +59,6 @@ const S = {
     width:'100%', maxWidth:420,
     boxShadow:'0 8px 40px rgba(89,110,121,0.15), 0 2px 8px rgba(89,110,121,0.10), 0 0 0 1px rgba(255,255,255,0.70) inset'
   },
-  logo:  { textAlign:'center', fontSize:34, fontWeight:800, color:'#2c3a40', marginBottom:6, letterSpacing:-1, fontFamily:"'Lexend', sans-serif" },
   sub:   { textAlign:'center', color:'#8a9aa3', fontSize:14, marginBottom:28 },
   group: { marginBottom:18 },
   label: { display:'block', color:'#596e79', fontSize:13, fontWeight:600, marginBottom:6 },
@@ -108,7 +107,16 @@ export default function Login() {
       `}</style>
 
       <div style={S.card}>
-        <div style={S.logo}>Fin<span style={{ color:'#3d7a6f' }}>ex</span></div>
+
+        {/* Logo image */}
+        <div style={{ textAlign: 'center', marginBottom: 12 }}>
+          <img
+            src="/finex-logo.png"
+            alt="FINEX"
+            style={{ height: 52, width: 'auto', objectFit: 'contain' }}
+          />
+        </div>
+
         <p style={S.sub}>Sign in to your account</p>
 
         {error && <div style={S.err}>{error}</div>}

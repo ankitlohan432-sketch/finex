@@ -42,7 +42,6 @@ const S = {
     width:'100%',maxWidth:420,
     boxShadow:'0 8px 40px rgba(89,110,121,0.15), 0 2px 8px rgba(89,110,121,0.10), 0 0 0 1px rgba(255,255,255,0.70) inset'
   },
-  logo: { textAlign:'center',fontSize:32,fontWeight:800,color:'#2c3a40',marginBottom:4,letterSpacing:-1,fontFamily:"'Lexend',sans-serif" },
   sub:  { textAlign:'center',color:'#8a9aa3',fontSize:14,marginBottom:28 },
   group:{ marginBottom:14 },
   label:{ display:'block',color:'#596e79',fontSize:13,fontWeight:600,marginBottom:6 },
@@ -52,6 +51,19 @@ const S = {
   err:  { background:'rgba(160,65,45,0.10)',border:'1px solid rgba(160,65,45,0.28)',color:'#a0412d',borderRadius:8,padding:'11px 14px',fontSize:13,marginBottom:16 },
   success:{ background:'rgba(74,124,89,0.10)',border:'1px solid rgba(74,124,89,0.28)',color:'#4a7c59',borderRadius:8,padding:'11px 14px',fontSize:13,marginBottom:16,textAlign:'center' },
   link: { textAlign:'center',marginTop:20,fontSize:13,color:'#8a9aa3' },
+}
+
+// ── Logo component — reused in all screens ────────────────────────────────────
+function FinexLogo() {
+  return (
+    <div style={{ textAlign: 'center', marginBottom: 12 }}>
+      <img
+        src="/finex-logo.png"
+        alt="FINEX"
+        style={{ height: 52, width: 'auto', objectFit: 'contain' }}
+      />
+    </div>
+  )
 }
 
 // ── OTP Input: 6 individual boxes ─────────────────────────────────────────────
@@ -152,7 +164,8 @@ function OtpScreen({ email, onSuccess }) {
 
   return (
     <div style={S.card}>
-      <div style={S.logo}>Fin<span style={{ color:'#3d7a6f' }}>ex</span></div>
+      {/* Logo */}
+      <FinexLogo />
       <p style={S.sub}>Verify your email</p>
 
       <div style={{ textAlign:'center',marginBottom:20,padding:'14px',background:'rgba(61,122,111,0.08)',borderRadius:12,border:'1px solid rgba(61,122,111,0.22)' }}>
@@ -239,7 +252,9 @@ export default function Register() {
         button:hover:not(:disabled) { opacity: 0.92; transform: translateY(-1px); }
       `}</style>
       <div style={S.card}>
-        <div style={S.logo}>Fin<span style={{ color:'#3d7a6f' }}>ex</span></div>
+
+        {/* Logo */}
+        <FinexLogo />
         <p style={S.sub}>Create your account</p>
 
         {error && <div style={S.err}>{error}</div>}

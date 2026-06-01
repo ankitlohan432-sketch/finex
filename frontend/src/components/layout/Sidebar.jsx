@@ -45,9 +45,13 @@ const sections = [
 export default function Sidebar({ open, onClose }) {
   return (
     <aside className={`sidebar ${open ? 'open' : ''}`}>
-      <div className="sidebar-logo">
-        Fin<span>ex</span>
-        <button onClick={onClose} style={{ float:'right',background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',display:'none' }} className="mobile-close">
+      <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <img
+          src="/finex-logo.png"
+          alt="FINEX"
+          style={{ height: 36, width: 'auto', objectFit: 'contain' }}
+        />
+        <button onClick={onClose} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',display:'none' }} className="mobile-close">
           <X size={16} />
         </button>
       </div>
