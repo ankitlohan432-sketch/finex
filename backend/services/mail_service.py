@@ -135,3 +135,16 @@ class MailService:
         await self._send(to_email, full_name, "New Login to Your Finex Account", html)
 
 mail_service = MailService()
+    async def send_password_reset_email(self, to_email: str, full_name: str, otp: str):
+        subject = "FINEX - Password Reset Code"
+        html = f"""
+        <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;background:#0d1117;color:#e6edf3;padding:32px;border-radius:12px;">
+            <h2 style="color:#00e5ff;">Password Reset</h2>
+            <p>Hi {full_name},</p>
+            <p>Your password reset code is:</p>
+            <div style="background:#1c2128;border-radius:8px;padding:20px;text-align:center;margin:20px 0;">
+                <span style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#00e5ff;">{otp}</span>
+            </div>
+            <p style="color:#8b949e;">This code expires in 10 minutes. If you did not request this, ignore this email.</p>
+        </div>"""
+        await self._send(to_email, full_name, subject, html)

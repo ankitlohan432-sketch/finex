@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+﻿import { useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -34,11 +34,11 @@ function CaptchaBox({ onVerified }) {
       </div>
       <span style={{ color: status==='verified' ? '#4a7c59' : status==='loading' ? '#3d7a6f' : '#596e79', fontSize:13, fontWeight:500 }}>
         {status==='idle'    && "I'm not a robot"}
-        {status==='loading' && 'Verifying…'}
-        {status==='verified'&& 'Verified ✓'}
+        {status==='loading' && 'Verifyingâ€¦'}
+        {status==='verified'&& 'Verified âœ“'}
       </span>
       <div style={{ marginLeft:'auto', textAlign:'right', fontSize:10, color:'#8a9aa3', lineHeight:1.4 }}>
-        <div>🛡️</div><div>reCAPTCHA</div>
+        <div>ðŸ›¡ï¸</div><div>reCAPTCHA</div>
       </div>
     </div>
   )
@@ -140,7 +140,7 @@ export default function Login() {
             <input
               style={S.input}
               type="password"
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
               required
@@ -155,7 +155,19 @@ export default function Login() {
           <button style={S.btn} type="submit" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
-        </form>
+          <div style={{textAlign:"right",marginTop:8,marginBottom:16}}>
+
+    <span onClick={()=>navigate("/forgot-password")}
+
+      style={{fontSize:13,color:"var(--accent)",cursor:"pointer"}}>
+
+      Forgot Password?
+
+    </span>
+
+  </div>
+
+</form>
 
         <div style={S.link}>
           Don't have an account?{' '}

@@ -257,3 +257,166 @@ async def refresh_token(request: Request, db: Session = Depends(get_db)):
         raise
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+class ForgotPassword(BaseModel):
+    email: EmailStr
+
+class ResetPassword(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
+
+@router.post("/forgot-password")
+async def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user:
+        return {"message": "If this email exists, a reset code has been sent."}
+    otp = generate_otp()
+    user.otp_code = otp
+    user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+    user.otp_attempts = 0
+    db.commit()
+    asyncio.create_task(mail_service.send_password_reset_email(user.email, user.full_name, otp))
+    logger.info(f"Password reset OTP for {user.email}: {otp}")
+    return {"message": "Reset code sent to your email.", "email": data.email}
+
+@router.post("/reset-password")
+async def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Account not found")
+    if user.otp_attempts >= 5:
+        raise HTTPException(status_code=429, detail="Too many attempts. Request a new code.")
+    if not user.otp_expires_at or datetime.utcnow() > user.otp_expires_at:
+        raise HTTPException(status_code=400, detail="Reset code expired. Please request a new one.")
+    if user.otp_code != data.otp:
+        user.otp_attempts += 1
+        db.commit()
+        raise HTTPException(status_code=400, detail="Invalid reset code.")
+    user.password_hash = auth_handler.hash_password(data.new_password)
+    user.otp_code = None
+    user.otp_expires_at = None
+    user.otp_attempts = 0
+    db.commit()
+    return {"message": "Password reset successful. Please login."}
+
+
+class ForgotPassword(BaseModel):
+    email: EmailStr
+
+class ResetPassword(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
+
+@router.post("/forgot-password")
+async def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user:
+        return {"message": "If this email exists, a reset code has been sent."}
+    otp = generate_otp()
+    user.otp_code = otp
+    user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+    user.otp_attempts = 0
+    db.commit()
+    asyncio.create_task(mail_service.send_password_reset_email(user.email, user.full_name, otp))
+    logger.info(f"Password reset OTP for {user.email}: {otp}")
+    return {"message": "Reset code sent to your email.", "email": data.email}
+
+@router.post("/reset-password")
+async def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Account not found")
+    if user.otp_attempts >= 5:
+        raise HTTPException(status_code=429, detail="Too many attempts. Request a new code.")
+    if not user.otp_expires_at or datetime.utcnow() > user.otp_expires_at:
+        raise HTTPException(status_code=400, detail="Reset code expired. Please request a new one.")
+    if user.otp_code != data.otp:
+        user.otp_attempts += 1
+        db.commit()
+        raise HTTPException(status_code=400, detail="Invalid reset code.")
+    user.password_hash = auth_handler.hash_password(data.new_password)
+    user.otp_code = None
+    user.otp_expires_at = None
+    user.otp_attempts = 0
+    db.commit()
+    return {"message": "Password reset successful. Please login."}
+
+class ForgotPassword(BaseModel):
+
+    email: EmailStr
+
+class ResetPassword(BaseModel):
+
+    email: EmailStr
+
+    otp: str
+
+    new_password: str
+
+@router.post("/forgot-password")
+
+async def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
+
+    user = db.query(User).filter(User.email == data.email).first()
+
+    if not user:
+
+        return {"message": "If this email exists, a reset code has been sent."}
+
+    otp = generate_otp()
+
+    user.otp_code = otp
+
+    user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+
+    user.otp_attempts = 0
+
+    db.commit()
+
+    asyncio.create_task(mail_service.send_password_reset_email(user.email, user.full_name, otp))
+
+    logger.info(f"Password reset OTP for {user.email}: {otp}")
+
+    return {"message": "Reset code sent to your email.", "email": data.email}
+
+@router.post("/reset-password")
+
+async def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
+
+    user = db.query(User).filter(User.email == data.email).first()
+
+    if not user:
+
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    if user.otp_attempts >= 5:
+
+        raise HTTPException(status_code=429, detail="Too many attempts. Request a new code.")
+
+    if not user.otp_expires_at or datetime.utcnow() > user.otp_expires_at:
+
+        raise HTTPException(status_code=400, detail="Reset code expired. Please request a new one.")
+
+    if user.otp_code != data.otp:
+
+        user.otp_attempts += 1
+
+        db.commit()
+
+        raise HTTPException(status_code=400, detail="Invalid reset code.")
+
+    user.password_hash = auth_handler.hash_password(data.new_password)
+
+    user.otp_code = None
+
+    user.otp_expires_at = None
+
+    user.otp_attempts = 0
+
+    db.commit()
+
+    return {"message": "Password reset successful. Please login."}
+
