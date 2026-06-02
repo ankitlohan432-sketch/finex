@@ -84,7 +84,7 @@ export default function Landing() {
               src="/finex-logo.png"
               alt="FINEX"
               style={{
-                height: 180,
+                height: 300,
                 width: 'auto',
                 objectFit: 'contain',
                 filter: 'drop-shadow(0 8px 24px rgba(61,122,111,0.20))',
