@@ -113,7 +113,7 @@ export default function Login() {
           <img
             src="/finex-logo.png"
             alt="FINEX"
-            style={{ height: 52, width: 'auto', objectFit: 'contain' }}
+            style={{ height: 80, width: 'auto', objectFit: 'contain' }}
           />
         </div>
 

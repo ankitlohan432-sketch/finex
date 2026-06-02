@@ -30,7 +30,7 @@ export default function Landing() {
         <img
           src="/finex-logo.png"
           alt="FINEX"
-          style={{ height: 44, width: 'auto', objectFit: 'contain' }}
+          style={{ height: 70, width: 'auto', objectFit: 'contain' }}
         />
 
         <div style={{ display: 'flex', gap: 16 }}>
@@ -84,7 +84,7 @@ export default function Landing() {
               src="/finex-logo.png"
               alt="FINEX"
               style={{
-                height: 120,
+                height: 180,
                 width: 'auto',
                 objectFit: 'contain',
                 filter: 'drop-shadow(0 8px 24px rgba(61,122,111,0.20))',

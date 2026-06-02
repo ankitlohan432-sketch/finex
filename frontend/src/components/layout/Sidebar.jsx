@@ -49,7 +49,7 @@ export default function Sidebar({ open, onClose }) {
         <img
           src="/finex-logo.png"
           alt="FINEX"
-          style={{ height: 36, width: 'auto', objectFit: 'contain' }}
+          style={{ height: 55, width: 'auto', objectFit: 'contain' }}
         />
         <button onClick={onClose} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',display:'none' }} className="mobile-close">
           <X size={16} />
