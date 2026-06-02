@@ -34,11 +34,11 @@ function CaptchaBox({ onVerified }) {
       </div>
       <span style={{ color: status==='verified' ? '#4a7c59' : status==='loading' ? '#3d7a6f' : '#596e79', fontSize:13, fontWeight:500 }}>
         {status==='idle'    && "I'm not a robot"}
-        {status==='loading' && 'Verifyingâ€¦'}
-        {status==='verified'&& 'Verified âœ“'}
+        {status==='loading' && 'Verifying...'}
+        {status==='verified'&& 'Verified human'}
       </span>
       <div style={{ marginLeft:'auto', textAlign:'right', fontSize:10, color:'#8a9aa3', lineHeight:1.4 }}>
-        <div>ðŸ›¡ï¸</div><div>reCAPTCHA</div>
+        <div></div><div>reCAPTCHA</div>
       </div>
     </div>
   )
@@ -140,7 +140,7 @@ export default function Login() {
             <input
               style={S.input}
               type="password"
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+              placeholder="Your password"
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
               required
