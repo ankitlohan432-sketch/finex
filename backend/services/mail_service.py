@@ -134,7 +134,7 @@ class MailService:
         """
         await self._send(to_email, full_name, "New Login to Your Finex Account", html)
 
-    mail_service = MailService()
+    mail_service=MailService()
     async def send_password_reset_email(self, to_email: str, full_name: str, otp: str):
         subject = "FINEX - Password Reset Code"
         html = f"""
