@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { TrendingUp, TrendingDown, Zap, AlertCircle } from 'lucide-react'
 
 const signalColors = {
@@ -45,7 +45,7 @@ function PredictionBox({ prediction }) {
               {prediction.name || prediction.symbol}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              {prediction.market.toUpperCase()} • ${prediction.price?.toFixed(2) || '—'}
+              {prediction.market.toUpperCase()} â€¢ ${prediction.price?.toFixed(2) || 'â€”'}
             </div>
           </div>
           <div style={{
@@ -105,7 +105,7 @@ function PredictionBox({ prediction }) {
             fontWeight: 600,
             color: prediction.change_percent >= 0 ? '#00e5a0' : '#ff6b6b'
           }}>
-            {prediction.change_percent >= 0 ? '+' : ''}{prediction.change_percent?.toFixed(2) || '—'}%
+            {prediction.change_percent >= 0 ? '+' : ''}{prediction.change_percent?.toFixed(2) || 'â€”'}%
           </div>
         )}
       </div>
@@ -129,10 +129,10 @@ export default function Predictions() {
     setLoading(true)
     try {
       const [cryptoRes, nseRes, bseRes, summaryRes] = await Promise.allSettled([
-        fetch('http://localhost:8000/predict/predictions/crypto').then(r => r.json()),
-        fetch('http://localhost:8000/predict/predictions/nse').then(r => r.json()),
-        fetch('http://localhost:8000/predict/predictions/bse').then(r => r.json()),
-        fetch('http://localhost:8000/predict/predictions/summary').then(r => r.json())
+        fetch('${import.meta.env.VITE_API_URL}/predict/predictions/crypto').then(r => r.json()),
+        fetch('${import.meta.env.VITE_API_URL}/predict/predictions/nse').then(r => r.json()),
+        fetch('${import.meta.env.VITE_API_URL}/predict/predictions/bse').then(r => r.json()),
+        fetch('${import.meta.env.VITE_API_URL}/predict/predictions/summary').then(r => r.json())
       ])
       
       setCryptoPreds(cryptoRes.status === 'fulfilled' ? (cryptoRes.value || []) : [])
@@ -160,10 +160,10 @@ export default function Predictions() {
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ margin: '0 0 8px 0', fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>
-          🤖 Market Predictions
+          ðŸ¤– Market Predictions
         </h1>
         <p style={{ margin: 0, fontSize: 14, color: 'var(--text-muted)' }}>
-          ML/DL buy/sell signals for all markets • Updated every 10 minutes
+          ML/DL buy/sell signals for all markets â€¢ Updated every 10 minutes
         </p>
       </div>
 
@@ -196,7 +196,7 @@ export default function Predictions() {
               transition: 'all 0.2s'
             }}
           >
-            {tab === 'all' ? '📊 All Markets' : tab === 'crypto' ? '₿ Crypto' : tab === 'nse' ? '🇮🇳 NSE' : '📈 BSE'}
+            {tab === 'all' ? 'ðŸ“Š All Markets' : tab === 'crypto' ? 'â‚¿ Crypto' : tab === 'nse' ? 'ðŸ‡®ðŸ‡³ NSE' : 'ðŸ“ˆ BSE'}
           </button>
         ))}
       </div>
@@ -216,7 +216,7 @@ export default function Predictions() {
                 {cryptoPreds.length > 0 && (
                   <div style={{ gridColumn: '1/-1' }}>
                     <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12 }}>
-                      💰 Cryptocurrency Predictions ({cryptoPreds.length})
+                      ðŸ’° Cryptocurrency Predictions ({cryptoPreds.length})
                     </h2>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 16 }}>
                       {cryptoPreds.map(p => <PredictionBox key={p.symbol} prediction={p} />)}
@@ -228,7 +228,7 @@ export default function Predictions() {
                 {nsePreds.length > 0 && (
                   <div style={{ gridColumn: '1/-1' }}>
                     <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12, marginTop: 24 }}>
-                      🇮🇳 NSE Stock Predictions ({nsePreds.length})
+                      ðŸ‡®ðŸ‡³ NSE Stock Predictions ({nsePreds.length})
                     </h2>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 16 }}>
                       {nsePreds.map(p => <PredictionBox key={p.symbol} prediction={p} />)}
@@ -240,7 +240,7 @@ export default function Predictions() {
                 {bsePreds.length > 0 && (
                   <div style={{ gridColumn: '1/-1' }}>
                     <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12, marginTop: 24 }}>
-                      📊 BSE Stock Predictions ({bsePreds.length})
+                      ðŸ“Š BSE Stock Predictions ({bsePreds.length})
                     </h2>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: 16 }}>
                       {bsePreds.map(p => <PredictionBox key={p.symbol} prediction={p} />)}
@@ -280,8 +280,9 @@ export default function Predictions() {
           boxShadow: '0 4px 16px rgba(0, 229, 255, 0.2)'
         }}
       >
-        🔄 Refresh Predictions
+        ðŸ”„ Refresh Predictions
       </button>
     </div>
   )
 }
+

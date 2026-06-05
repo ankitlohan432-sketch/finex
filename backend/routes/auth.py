@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+﻿from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 from database import get_db
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Authentication"])
 
-# ── Schemas ───────────────────────────────────────────────────────────────────
+# â”€â”€ Schemas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class UserRegister(BaseModel):
     email: EmailStr
@@ -37,7 +37,7 @@ class OTPVerify(BaseModel):
 class ResendOTP(BaseModel):
     email: EmailStr
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def generate_otp() -> str:
     """Generate a 6-digit numeric OTP"""
@@ -57,7 +57,7 @@ def user_to_dict(user):
         "last_login": user.last_login.isoformat() if user.last_login else None,
     }
 
-# ── Register ──────────────────────────────────────────────────────────────────
+# â”€â”€ Register â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.post("/register")
 async def register(user_data: UserRegister, request: Request, db: Session = Depends(get_db)):
@@ -76,7 +76,6 @@ async def register(user_data: UserRegister, request: Request, db: Session = Depe
         existing.phone = user_data.phone
         db.commit()
         asyncio.create_task(mail_service.send_otp_email(existing.email, existing.full_name, otp))
-        logger.info(f"🔐 DEV OTP for {existing.email}: {otp}")
         return {
             "message": "OTP resent to your email. Please verify your account.",
             "email": existing.email,
@@ -86,7 +85,7 @@ async def register(user_data: UserRegister, request: Request, db: Session = Depe
     # Generate OTP
     otp = generate_otp()
 
-    # Create user — NOT active/verified until OTP confirmed
+    # Create user â€” NOT active/verified until OTP confirmed
     db_user = User(
         email=user_data.email,
         full_name=user_data.full_name,
@@ -104,7 +103,6 @@ async def register(user_data: UserRegister, request: Request, db: Session = Depe
 
     # Send OTP email (non-blocking)
     asyncio.create_task(mail_service.send_otp_email(db_user.email, db_user.full_name, otp))
-    logger.info(f"🔐 DEV OTP for {db_user.email}: {otp}")
 
     return {
         "message": "Account created! Please check your email for the 6-digit verification code.",
@@ -112,7 +110,7 @@ async def register(user_data: UserRegister, request: Request, db: Session = Depe
         "requires_verification": True
     }
 
-# ── Verify OTP ────────────────────────────────────────────────────────────────
+# â”€â”€ Verify OTP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.post("/verify-otp")
 async def verify_otp(data: OTPVerify, db: Session = Depends(get_db)):
@@ -142,7 +140,7 @@ async def verify_otp(data: OTPVerify, db: Session = Depends(get_db)):
             detail=f"Incorrect OTP. {remaining} attempt(s) remaining."
         )
 
-    # ✅ OTP correct — activate account
+    # âœ… OTP correct â€” activate account
     user.is_verified = True
     user.is_active = True
     user.otp_code = None
@@ -171,7 +169,7 @@ async def verify_otp(data: OTPVerify, db: Session = Depends(get_db)):
         "user": user_to_dict(user)
     }
 
-# ── Resend OTP ────────────────────────────────────────────────────────────────
+# â”€â”€ Resend OTP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.post("/resend-otp")
 async def resend_otp(data: ResendOTP, db: Session = Depends(get_db)):
@@ -196,11 +194,10 @@ async def resend_otp(data: ResendOTP, db: Session = Depends(get_db)):
     db.commit()
 
     asyncio.create_task(mail_service.send_otp_email(user.email, user.full_name, otp))
-    logger.info(f"🔐 DEV OTP for {user.email}: {otp}")
 
     return {"message": "New OTP sent to your email.", "email": user.email}
 
-# ── Login ─────────────────────────────────────────────────────────────────────
+# â”€â”€ Login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.post("/login")
 async def login(credentials: UserLogin, request: Request, db: Session = Depends(get_db)):
@@ -235,13 +232,13 @@ async def login(credentials: UserLogin, request: Request, db: Session = Depends(
     token = auth_handler.create_access_token({"sub": str(user.id), "email": user.email})
     return {"access_token": token, "token_type": "bearer", "user": user_to_dict(user)}
 
-# ── Logout ────────────────────────────────────────────────────────────────────
+# â”€â”€ Logout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.post("/logout")
 async def logout():
     return {"message": "Logged out successfully"}
 
-# ── Refresh Token ─────────────────────────────────────────────────────────────
+# â”€â”€ Refresh Token â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @router.post("/refresh-token")
 async def refresh_token(request: Request, db: Session = Depends(get_db)):
@@ -278,7 +275,6 @@ async def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
     user.otp_attempts = 0
     db.commit()
     asyncio.create_task(mail_service.send_password_reset_email(user.email, user.full_name, otp))
-    logger.info(f"Password reset OTP for {user.email}: {otp}")
     return {"message": "Reset code sent to your email.", "email": data.email}
 
 @router.post("/reset-password")
@@ -321,7 +317,6 @@ async def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
     user.otp_attempts = 0
     db.commit()
     asyncio.create_task(mail_service.send_password_reset_email(user.email, user.full_name, otp))
-    logger.info(f"Password reset OTP for {user.email}: {otp}")
     return {"message": "Reset code sent to your email.", "email": data.email}
 
 @router.post("/reset-password")
@@ -378,8 +373,6 @@ async def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
 
     asyncio.create_task(mail_service.send_password_reset_email(user.email, user.full_name, otp))
 
-    logger.info(f"Password reset OTP for {user.email}: {otp}")
-
     return {"message": "Reset code sent to your email.", "email": data.email}
 
 @router.post("/reset-password")
@@ -419,4 +412,5 @@ async def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Password reset successful. Please login."}
+
 

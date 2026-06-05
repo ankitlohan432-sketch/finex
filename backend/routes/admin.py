@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+﻿from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
@@ -49,3 +49,4 @@ async def activate_user(user_id: int, admin: User = Depends(get_admin_user), db:
     user.is_active = True
     db.commit()
     return {"message": f"User {user_id} activated"}
+
