@@ -212,7 +212,7 @@ export default function Landing() {
         padding:'40px', background:'#ece7db', borderTop:'1px solid #dfd3c3',
         textAlign:'center', fontSize:12, color:'#8a9aa3'
       }}>
-        <p>© 2024 FINEX. All rights reserved. | Privacy Policy | Terms of Service</p>
+        <p>© 2026 FINEX. All rights reserved. | Privacy Policy | Terms of Service</p>
       </footer>
 
       <style>{`

@@ -1,5 +1,6 @@
 ﻿import logging
 import httpx
+from streamlit import html
 from config import settings
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -113,7 +114,7 @@ class MailService:
           </div>
         </div>
         """
-        await self._send(to_email, full_name, "Welcome to Finex!", html)
+        await self._send(to_email, full_name, "Welcome to Finex!",html)
 
     async def send_login_alert(self, to_email: str, full_name: str, ip: str = "Unknown"):
         html = f"""
