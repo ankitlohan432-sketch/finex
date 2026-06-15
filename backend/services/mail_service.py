@@ -1,6 +1,5 @@
 ﻿import logging
 import httpx
-from streamlit import html
 from config import settings
 from datetime import datetime, timedelta
 from collections import defaultdict
