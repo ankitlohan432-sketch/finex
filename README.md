@@ -244,7 +244,7 @@ docker-compose exec postgres \
 ## 📄 Version
 
 **FINEX v1.0.0** - Production Ready  
-Last Updated: December 2024
+Last Updated: December 2025
 
 ---
 
