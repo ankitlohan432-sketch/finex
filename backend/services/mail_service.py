@@ -1,19 +1,15 @@
 import logging
-import smtplib
 import os
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import httpx
 from datetime import datetime, timedelta
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-# ── Gmail SMTP config ─────────────────────────────────────────────────────────
-SMTP_HOST     = "smtp.gmail.com"
-SMTP_PORT     = 587
-SMTP_USER     = os.getenv("SMTP_USER", "").strip()
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "").strip()
-FROM_NAME     = "Finex"
+# ── Resend config ─────────────────────────────────────────────────────────────
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
+RESEND_URL     = "https://api.resend.com/emails"
+FROM_ADDRESS   = "FINEX <onboarding@resend.dev>"
 
 MAX_EMAILS_PER_USER = 5
 
@@ -29,9 +25,9 @@ class MailService:
             return False, "Too many emails sent to this address"
         return True, "OK"
 
-    def _send(self, to_email: str, to_name: str, subject: str, html: str):
-        if not SMTP_USER or not SMTP_PASSWORD:
-            logger.error("SMTP_USER or SMTP_PASSWORD not set in environment variables.")
+    async def _send(self, to_email: str, subject: str, html: str):
+        if not RESEND_API_KEY:
+            logger.error("RESEND_API_KEY not set in environment variables.")
             return False
 
         allowed, reason = self._check_rate_limit(to_email)
@@ -39,26 +35,30 @@ class MailService:
             logger.error(f"Rate limit: {reason} for {to_email}")
             return False
 
+        payload = {
+            "from":    FROM_ADDRESS,
+            "to":      [to_email],
+            "subject": subject,
+            "html":    html
+        }
+
         try:
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["From"]    = f"{FROM_NAME} <{SMTP_USER}>"
-            msg["To"]      = f"{to_name} <{to_email}>"
-            msg.attach(MIMEText(html, "html"))
-
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-                server.ehlo()
-                server.starttls()
-                server.login(SMTP_USER, SMTP_PASSWORD)
-                server.sendmail(SMTP_USER, to_email, msg.as_string())
-
-            logger.info(f"Email sent to {to_email}: {subject}")
-            self.user_log[to_email].append(datetime.now())
-            return True
-
-        except smtplib.SMTPAuthenticationError:
-            logger.error("Gmail SMTP auth failed — check SMTP_USER and SMTP_PASSWORD")
-            return False
+            async with httpx.AsyncClient(timeout=10) as client:
+                res = await client.post(
+                    RESEND_URL,
+                    json=payload,
+                    headers={
+                        "Authorization": f"Bearer {RESEND_API_KEY}",
+                        "Content-Type":  "application/json"
+                    }
+                )
+                if res.status_code in (200, 201):
+                    logger.info(f"Email sent to {to_email}: {subject}")
+                    self.user_log[to_email].append(datetime.now())
+                    return True
+                else:
+                    logger.error(f"Resend error {res.status_code}: {res.text}")
+                    return False
         except Exception as e:
             logger.error(f"Failed to send email to {to_email}: {e}")
             return False
@@ -88,7 +88,7 @@ class MailService:
           </div>
         </div>
         """
-        self._send(to_email, full_name, "Your Finex Verification Code", html)
+        await self._send(to_email, "Your Finex Verification Code", html)
 
     # ── Welcome Email ─────────────────────────────────────────────────────────
 
@@ -116,7 +116,7 @@ class MailService:
           </div>
         </div>
         """
-        self._send(to_email, full_name, "Welcome to Finex!", html)
+        await self._send(to_email, "Welcome to Finex!", html)
 
     # ── Login Alert Email ─────────────────────────────────────────────────────
 
@@ -139,7 +139,7 @@ class MailService:
           </div>
         </div>
         """
-        self._send(to_email, full_name, "New Login to Your Finex Account", html)
+        await self._send(to_email, "New Login to Your Finex Account", html)
 
     # ── Password Reset Email ──────────────────────────────────────────────────
 
@@ -167,7 +167,7 @@ class MailService:
           </div>
         </div>
         """
-        self._send(to_email, full_name, "FINEX — Password Reset Code", html)
+        await self._send(to_email, "FINEX — Password Reset Code", html)
 
 
 # Module-level singleton
