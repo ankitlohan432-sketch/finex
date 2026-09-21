@@ -6,10 +6,11 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-# ── Resend config ─────────────────────────────────────────────────────────────
-RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
-RESEND_URL     = "https://api.resend.com/emails"
-FROM_ADDRESS   = "FINEX <onboarding@resend.dev>"
+# ── Brevo (Sendinblue) config ─────────────────────────────────────────────────
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "").strip()
+BREVO_URL     = "https://api.brevo.com/v3/smtp/email"
+FROM_EMAIL    = "finexapp.1@gmail.com"
+FROM_NAME     = "Finex"
 
 MAX_EMAILS_PER_USER = 5
 
@@ -25,9 +26,9 @@ class MailService:
             return False, "Too many emails sent to this address"
         return True, "OK"
 
-    async def _send(self, to_email: str, subject: str, html: str):
-        if not RESEND_API_KEY:
-            logger.error("RESEND_API_KEY not set in environment variables.")
+    async def _send(self, to_email: str, to_name: str, subject: str, html: str):
+        if not BREVO_API_KEY:
+            logger.error("BREVO_API_KEY not set in environment variables.")
             return False
 
         allowed, reason = self._check_rate_limit(to_email)
@@ -36,20 +37,20 @@ class MailService:
             return False
 
         payload = {
-            "from":    FROM_ADDRESS,
-            "to":      [to_email],
-            "subject": subject,
-            "html":    html
+            "sender":      {"name": FROM_NAME, "email": FROM_EMAIL},
+            "to":          [{"email": to_email, "name": to_name}],
+            "subject":     subject,
+            "htmlContent": html
         }
 
         try:
             async with httpx.AsyncClient(timeout=10) as client:
                 res = await client.post(
-                    RESEND_URL,
+                    BREVO_URL,
                     json=payload,
                     headers={
-                        "Authorization": f"Bearer {RESEND_API_KEY}",
-                        "Content-Type":  "application/json"
+                        "api-key":      BREVO_API_KEY,
+                        "Content-Type": "application/json"
                     }
                 )
                 if res.status_code in (200, 201):
@@ -57,7 +58,7 @@ class MailService:
                     self.user_log[to_email].append(datetime.now())
                     return True
                 else:
-                    logger.error(f"Resend error {res.status_code}: {res.text}")
+                    logger.error(f"Brevo error {res.status_code}: {res.text}")
                     return False
         except Exception as e:
             logger.error(f"Failed to send email to {to_email}: {e}")
@@ -88,7 +89,7 @@ class MailService:
           </div>
         </div>
         """
-        await self._send(to_email, "Your Finex Verification Code", html)
+        await self._send(to_email, full_name, "Your Finex Verification Code", html)
 
     # ── Welcome Email ─────────────────────────────────────────────────────────
 
@@ -116,7 +117,7 @@ class MailService:
           </div>
         </div>
         """
-        await self._send(to_email, "Welcome to Finex!", html)
+        await self._send(to_email, full_name, "Welcome to Finex!", html)
 
     # ── Login Alert Email ─────────────────────────────────────────────────────
 
@@ -139,7 +140,7 @@ class MailService:
           </div>
         </div>
         """
-        await self._send(to_email, "New Login to Your Finex Account", html)
+        await self._send(to_email, full_name, "New Login to Your Finex Account", html)
 
     # ── Password Reset Email ──────────────────────────────────────────────────
 
@@ -167,7 +168,7 @@ class MailService:
           </div>
         </div>
         """
-        await self._send(to_email, "FINEX — Password Reset Code", html)
+        await self._send(to_email, full_name, "FINEX — Password Reset Code", html)
 
 
 # Module-level singleton
